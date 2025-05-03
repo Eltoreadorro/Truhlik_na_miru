@@ -15,7 +15,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesSeeder::class,
+            CategoriesSeeder::class, // Добавляем перед ProductsSeeder
+            ProductsSeeder::class,
         ]);
+
 
         // User::factory()->create([
         //     'name' => 'Test User',
