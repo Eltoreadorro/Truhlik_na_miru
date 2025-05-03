@@ -306,6 +306,22 @@ return [
             'topnav_right' => true,
         ],
         [
+            'text' => 'Главная',
+            'url'  => '/admin/dashboard',
+            'icon' => 'fas fa-home',
+        ],
+        [
+            'text' => 'Пользователи',
+            'url'  => '/admin/users',
+            'icon' => 'fas fa-users',
+            'can'  => 'manage-users', // Права будут настроены позже
+        ],
+        [
+            'text' => 'Товары',
+            'url'  => '/admin/products',
+            'icon' => 'fas fa-box-open',
+        ],
+        [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
