@@ -7,13 +7,18 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Spatie\Permission\Middlewares\Role;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
 
 class ProductController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:admin']);
+    public static function middleware(): array {
+        return [
+            'auth',
+            new Middleware('role:admin', only: ['index']),
+        ];
     }
 
     public function index()
@@ -35,9 +40,14 @@ class ProductController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        //
-    }
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'category_id' => 'required|exists:categories,id',
+    ]);
+    // ...
+}
 
     /**
      * Display the specified resource.
