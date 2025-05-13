@@ -11,8 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
-    })
+    // Регистрируем наш middleware
+    $middleware->alias([
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+    ]);
+
+    // Глобальные middleware (если нужно)
+    $middleware->append([
+        \Illuminate\Http\Middleware\HandleCors::class,
+    ]);
+})
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

@@ -19,6 +19,7 @@ class ProductFactory extends Factory
 {
     return [
         'name' => fake()->words(3, true),
+        'sku' => fake()->unique()->ean13(),
         'description' => fake()->paragraph,
         'price' => fake()->numberBetween(100, 10000),
         'sku' => fake()->unique()->ean13(),

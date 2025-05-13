@@ -257,7 +257,7 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => 'home',
+    'home_url' => 'home',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -307,7 +307,7 @@ return [
         ],
         [
             'text' => 'Главная',
-            'url'  => '/admin/dashboard',
+            'url'  => '/admin/home',
             'icon' => 'fas fa-home',
         ],
         [

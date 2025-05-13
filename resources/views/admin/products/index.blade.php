@@ -1,4 +1,3 @@
-// resources/views/admin/products/index.blade.php
 @extends('adminlte::page')
 
 @section('title', 'Товары')
@@ -17,6 +16,7 @@
                         <th>ID</th>
                         <th>Название</th>
                         <th>Цена</th>
+                        <th>Изображение</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
@@ -25,10 +25,17 @@
                     <tr>
                         <td>{{ $product->id }}</td>
                         <td>{{ $product->name }}</td>
-                        <td>{{ $product->price }} руб.</td>
+                        <td>{{ $product->price }} грн</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-info">Редактировать</a>
-                            <form action="#" method="POST" class="d-inline">
+                            @if ($product->getFirstMediaUrl('products'))
+                                <img src="{{ $product->getFirstMediaUrl('products') }}" width="50">
+                            @else
+                                <span class="text-muted">Нет изображения</span>
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-info">Редактировать</a>
+                            <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="d-inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
                             </form>
