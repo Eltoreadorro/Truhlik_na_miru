@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo' => '<b>Truhlik na Miru</b>',
+    'logo_img' => 'storage/output-onlinepngtools-_1_.ico',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Admin Logo',
+    'logo_img_alt' => 'Truhlik na Miru',
 
     /*
     |--------------------------------------------------------------------------
@@ -257,7 +257,7 @@ return [
     */
 
     'use_route_url' => false,
-    'home_url' => 'home',
+    'dashboard_url' => '/admin/',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -299,116 +299,68 @@ return [
     */
 
     'menu' => [
-        // Navbar items:
-        [
-            'type' => 'navbar-search',
-            'text' => 'search',
-            'topnav_right' => true,
-        ],
-        [
-            'text' => 'Главная',
-            'url'  => '/admin/home',
-            'icon' => 'fas fa-home',
-        ],
-        [
-            'text' => 'Пользователи',
-            'url'  => '/admin/users',
-            'icon' => 'fas fa-users',
-            'can'  => 'manage-users', // Права будут настроены позже
-        ],
-        [
-            'text' => 'Товары',
-            'url'  => '/admin/products',
-            'icon' => 'fas fa-box-open',
-        ],
-        [
-            'type' => 'fullscreen-widget',
-            'topnav_right' => true,
-        ],
-
-        // Sidebar items:
-        [
-            'type' => 'sidebar-menu-search',
-            'text' => 'search',
-        ],
-        [
-            'text' => 'blog',
-            'url' => 'admin/blog',
-            'can' => 'manage-blog',
-        ],
-        [
-            'text' => 'pages',
-            'url' => 'admin/pages',
-            'icon' => 'far fa-fw fa-file',
-            'label' => 4,
-            'label_color' => 'success',
-        ],
-        ['header' => 'account_settings'],
-        [
-            'text' => 'profile',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-user',
-        ],
-        [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-lock',
-        ],
-        [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
-            'submenu' => [
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                        ],
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                            'submenu' => [
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
+    [
+        'text' => 'Dashboard',
+        'url' => '/admin',
+        'icon' => 'fas fa-tachometer-alt',
+    ],
+    [
+        'text' => 'Produkty',
+        'icon' => 'fas fa-box-open',
+        'submenu' => [
+            [
+                'text' => 'Všechny produkty',
+                'url' => '/admin/products',
+                'icon' => 'fas fa-list',
+            ],
+            [
+                'text' => 'Přidat produkt',
+                'url' => '/admin/products/create',
+                'icon' => 'fas fa-plus',
             ],
         ],
-        ['header' => 'labels'],
-        [
-            'text' => 'important',
-            'icon_color' => 'red',
-            'url' => '#',
-        ],
-        [
-            'text' => 'warning',
-            'icon_color' => 'yellow',
-            'url' => '#',
-        ],
-        [
-            'text' => 'information',
-            'icon_color' => 'cyan',
-            'url' => '#',
-        ],
     ],
+    [
+        'text' => 'Kategorie',
+        'url' => '/admin/categories',
+        'icon' => 'fas fa-tags',
+    ],
+    [
+        'text' => 'Barvy',
+        'url' => '/admin/colors',
+        'icon' => 'fas fa-palette',
+    ],
+    [
+        'text' => 'Objednávky',
+        'url' => '/admin/orders',
+        'icon' => 'fas fa-shopping-cart',
+    ],
+    [
+        'text' => 'Mail Logs',
+        'url' => '/admin/mail-logs',
+        'icon' => 'fas fa-envelope',
+    ],
+    [
+        'text' => 'Uživatelé',
+        'url' => '/admin/users',
+        'icon' => 'fas fa-users',
+    ],
+    [
+        'text' => 'Subscribers',
+        'url' => '/admin/subscribers',
+        'icon' => 'fas fa-mail-bulk',
+    ],
+    [
+        'text' => 'Požadavky',
+        'url' => '/admin/contact-requests',
+        'icon' => 'fas fa-envelope',
+    ],
+    [
+        'text' => 'Nastavení',
+        'url' => '/admin/settings',
+        'icon' => 'fas fa-cog',
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------
@@ -446,7 +398,7 @@ return [
 
     'plugins' => [
         'Datatables' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
@@ -466,7 +418,7 @@ return [
             ],
         ],
         'Select2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
@@ -480,8 +432,23 @@ return [
                 ],
             ],
         ],
+        'BSCustomFileInput' => [
+        'active' => true,
+        'files' => [
+            [
+                'type' => 'js',
+                'asset' => true,
+                'location' => 'vendor/bootstrap-fileinput/js/fileinput.min.js',
+            ],
+            [
+                'type' => 'css',
+                'asset' => true,
+                'location' => 'vendor/bootstrap-fileinput/css/fileinput.min.css',
+            ],
+        ],
+    ],
         'Chartjs' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
@@ -491,7 +458,7 @@ return [
             ],
         ],
         'Sweetalert2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
@@ -501,7 +468,7 @@ return [
             ],
         ],
         'Pace' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'css',

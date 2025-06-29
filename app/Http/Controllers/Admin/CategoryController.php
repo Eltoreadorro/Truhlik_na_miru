@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -31,13 +32,18 @@ class CategoryController extends Controller
     public function store(Request $request)
 {
     $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'slug' => 'required|alpha_dash|unique:categories,slug',
+        'name' => 'required|string|max:255|unique:categories',
+        'description' => 'nullable|string',
     ]);
 
+    // Автоматически генерируем slug из названия
+    $validated['slug'] = Str::slug($validated['name']);
+
     Category::create($validated);
-    return redirect()->route('admin.categories.index')->with('success', 'Категория создана!');
-}
+
+    return redirect()->route('admin.categories.index')
+                   ->with('success', 'Kategorie byla úspěšně vytvořena!');
+                }
 
     /**
      * Display the specified resource.
@@ -51,30 +57,34 @@ class CategoryController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Category $category)
-{
-    return view('admin.categories.edit', compact('category'));
-}
+    {
+        return view('admin.categories.edit', compact('category', 'products'));
+    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Category $category)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'slug' => 'required|alpha_dash|unique:categories,slug,' . $category->id,
-    ]);
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,'.$category->id,
+            'slug' => 'required|string|max:255|unique:categories,slug,'.$category->id,
+            'description' => 'nullable|string',
+        ]);
 
-    $category->update($validated);
-    return redirect()->route('admin.categories.index')->with('success', 'Категория обновлена!');
-}
+        $category->update($validated);
+
+        return redirect()->route('admin.categories.index')
+                       ->with('success', 'Kategorie byla upravena!');
+    }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Category $category)
-{
-    $category->delete();
-    return redirect()->route('admin.categories.index')->with('success', 'Категория удалена!');
-}
+    {
+        $category->delete();
+        return redirect()->route('admin.categories.index')
+                       ->with('success', 'Kategorie byla smazána!');
+    }
 }

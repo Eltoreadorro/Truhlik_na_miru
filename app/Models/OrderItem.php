@@ -34,4 +34,19 @@ class OrderItem extends Model
 
         }
 
+        public function getDisplayAttributes()
+{
+    return [
+        'product_name' => $this->variant->product->name,
+        'color_name' => $this->variant->color_data->name,
+        'color_hex' => $this->variant->color_data->hex_code,
+        'contrast_color' => $this->variant->color_data->contrast_color,
+        'dimensions' => $this->variant->formatted_dimensions,
+        'quantity' => $this->quantity,
+        'price' => $this->price,
+        'image_url' => $this->variant->getFirstMediaUrl('variants', 'thumb'),
+        'total' => $this->price * $this->quantity
+    ];
+}
+
         }

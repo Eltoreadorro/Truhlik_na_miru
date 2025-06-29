@@ -7,7 +7,7 @@
             class="add-to-cart btn btn-primary "
             data-url="{{ route('cart.add', $product->id) }}"
         >
-            В корзину
+            Do košíku
         </button>
     </div>
 </div>

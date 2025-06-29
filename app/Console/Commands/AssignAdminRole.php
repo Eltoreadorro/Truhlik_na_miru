@@ -31,7 +31,7 @@ class AssignAdminRole extends Command
     $user = User::where('email', $email)->first();
 
     if (!$user) {
-        $this->error("Пользователь не найден!");
+        $this->error("Uživatel nenalezen!");
         return;
     }
 
@@ -40,6 +40,6 @@ class AssignAdminRole extends Command
 
     // Назначаем роль
     $user->assignRole('admin');
-    $this->info("Роль 'admin' назначена для $email!");
+    $this->info("Role 'admin' je přiřazena k $email!");
 }
 }

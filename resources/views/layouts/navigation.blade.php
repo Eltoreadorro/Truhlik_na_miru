@@ -23,7 +23,7 @@
         <li class="nav-item hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
             <a href="{{ route('admin.products.index') }}" class="nav-link">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
-                <p>Админ панель</p>
+                <p>Admin</p>
             </a>
         </li>
         @endif

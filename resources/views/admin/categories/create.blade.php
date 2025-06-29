@@ -1,18 +1,33 @@
-@extends('adminlte::page')
+@extends('admin.layout')
 
-@section('content')
-<div class="container">
+@section('title', 'Přidat kategorii')
+
+@section('content_header')
+    @section('header_title', 'Nová kategorie')
+    @section('header_buttons')
+        <a href="{{ route('admin.categories.index') }}" class="btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left"></i> Zpět
+        </a>
+    @endsection
+@stop
+
+@section('admin_content')
     <form action="{{ route('admin.categories.store') }}" method="POST">
         @csrf
-        <div class="form-group">
-            <label>Название</label>
-            <input type="text" name="name" class="form-control" required>
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Název kategorie*</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Popis</label>
+                    <textarea name="description" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Vytvořit</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Slug (URL)</label>
-            <input type="text" name="slug" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Сохранить</button>
     </form>
-</div>
-@endsection
+@stop

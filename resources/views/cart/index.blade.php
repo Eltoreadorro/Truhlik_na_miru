@@ -1,79 +1,27 @@
-@extends('layouts.app')
+    @extends('layouts.app')
 
-@section('content')
-<div class="container py-4">
-    <h1 class="mb-4">Корзина</h1>
+    @section('content')
+    <div class="container mx-auto px-4 py-8 pt-20">
+        <h1 class="text-3xl font-bold mb-6">Nákupní košík</h1>
 
-    @if(count($cartItems) > 0)
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Товар</th>
-                    <th>Вариант</th>
-                    <th>Цена</th>
-                    <th>Количество</th>
-                    <th>Сумма</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($cartItems as $item)
-                <tr>
-                    <td>
-                        <a href="{{ route('products.show', $item['variant']->product) }}">
-                            {{ $item['variant']->product->name }}
-                        </a>
-                    </td>
-                    <td>
-                        {{ $item['variant']->color }}, {{ $item['variant']->volume }}л
-                    </td>
-                    <td>{{ $item['variant']->price }} Kč</td>
-                    <td>
-                        <form action="{{ route('cart.update', $item['variant']) }}" method="POST">
-                            @csrf @method('PATCH')
-                            <input type="number"
-                                   name="quantity"
-                                   value="{{ $item['quantity'] }}"
-                                   min="1"
-                                   class="form-control"
-                                   style="width: 80px;"
-                                   onchange="this.form.submit()">
-                        </form>
-                    </td>
-                    <td>{{ $item['variant']->price * $item['quantity'] }} Kč</td>
-                    <td>
-                        <form action="{{ route('cart.remove', $item['variant']) }}" method="POST">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                ×
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4" class="text-end"><strong>Итого:</strong></td>
-                    <td colspan="2"><strong>{{ $total }} Kč</strong></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+        @if(session('success'))
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <p>{{ session('success') }}</p>
+            </div>
+        </div>
+        @endif
 
-    <div class="d-flex justify-content-between mt-4">
-        <a href="{{ route('products.index') }}" class="btn btn-outline-secondary">
-            ← Продолжить покупки
-        </a>
-        <a href="{{ route('checkout') }}" class="btn btn-primary">
-            Оформить заказ →
-        </a>
+        @if(session('error'))
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <p>{{ session('error') }}</p>
+            </div>
+        </div>
+        @endif
+
+        @livewire('cart-table')
     </div>
-    @else
-    <div class="alert alert-info">
-        Ваша корзина пуста. <a href="{{ route('products.index') }}">Начать покупки</a>
-    </div>
-    @endif
-</div>
-@endsection
+    @endsection

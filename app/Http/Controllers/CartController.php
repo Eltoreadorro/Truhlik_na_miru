@@ -17,43 +17,21 @@ class CartController extends Controller
 
     public function index()
     {
-        $cartItems = $this->cartService->getItems();
-        $total = $this->cartService->getTotal();
-
-        return view('cart.index', compact('cartItems', 'total'));
+        return view('cart.index');
     }
 
     public function add(ProductVariant $variant, Request $request)
     {
         $quantity = $request->input('quantity', 1);
-
-        if (!is_numeric($quantity) || $quantity < 1) {
-            return back()->with('error', 'Некорректное количество');
-        }
-
         $this->cartService->add($variant, $quantity);
 
         return redirect()->route('cart.index')
-            ->with('success', 'Товар добавлен в корзину');
-    }
-
-    public function update(ProductVariant $variant, Request $request)
-    {
-        $quantity = $request->input('quantity');
-
-        if (!is_numeric($quantity) || $quantity < 1) {
-            return back()->with('error', 'Некорректное количество');
-        }
-
-        $this->cartService->update($variant, $quantity);
-
-        return back()->with('success', 'Корзина обновлена');
+            ->with('success', 'Produkt byl přidán do košíku');
     }
 
     public function remove(ProductVariant $variant)
     {
         $this->cartService->remove($variant);
-
-        return back()->with('success', 'Товар удален из корзины');
+        return back()->with('success', 'Produkt byl odstraněn z košíku');
     }
 }

@@ -1,54 +1,56 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="cz">
+<head>
+    @include('layouts.meta')
+    @stack('styles')
+    @yield('styles')
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="description" content="Truhlík na míru - kvalitní květináče a truhlíky na zakázku">
+<meta name="keywords" content="truhlíky, květináče, zahrada, na míru">
+<meta name="author" content="Truhlík na míru">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ url()->current() }}">
+<meta property="og:title" content="@yield('title', 'Truhlík na míru')">
+<meta property="og:description" content="Kvalitní květináče a truhlíky na zakázku">
+<meta property="og:image" content="{{ asset('img/og-image.jpg') }}">
 
-        <!-- Scripts -->
-        @production
-        <link href="{{ asset('build/assets/app.css') }}" rel="stylesheet">
-        <script src="{{ asset('build/assets/app.js') }}" defer></script>
-    @else
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @endproduction
-    {{-- @fluxAppearance --}}
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="{{ url()->current() }}">
+<meta property="twitter:title" content="@yield('title', 'Truhlík na míru')">
+<meta property="twitter:description" content="Kvalitní květináče a truhlíky na zakázku">
+<meta property="twitter:image" content="{{ asset('img/og-image.jpg') }}">
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8" >
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+<title>@yield('title', 'Truhlík na míru') | truhlik-na-miru.cz</title>
 
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+<!-- Favicon -->
+<link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+<link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+<link rel="apple-touch-icon" href="{{ asset('img/apple-touch-icon.png') }}">
 
-            <!-- Page Content -->
-            <main>
-                @yield('content')
-                {{ $slot ?? null }}
-            </main>
-        </div>
-        @fluxScripts
-    </body>
+<!-- Canonical URL -->
+<link rel="canonical" href="{{ url()->current() }}" />
+</head>
+<body class="bg-white text-gray-900">
+    <div class="min-h-screen flex flex-col">
+        @include('layouts.header')
+
+        <main class="flex-grow">
+            @yield('content')
+        </main>
+
+        @include('layouts.footer')
+    </div>
+
+@include('components.cookie-consent')
+
+    @include('layouts.scripts')
+    @stack('scripts')
+    @yield('scripts')
+</body>
 </html>

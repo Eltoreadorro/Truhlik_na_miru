@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use Livewire\Component;
 use App\Services\CartService;
 
 class CartCounter extends Component
 {
-    protected $listeners = ['cartUpdated' => '$refresh'];
+  protected $listeners = ['cartUpdatedGlobal' => '$refresh'];
 
     public function render(CartService $cart)
     {

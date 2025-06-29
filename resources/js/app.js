@@ -1,5 +1,6 @@
 import './bootstrap';
 import './cart'
+require('select2');
 
 import Alpine from 'alpinejs';
 

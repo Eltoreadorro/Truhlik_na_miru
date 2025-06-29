@@ -1,31 +1,40 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
-
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
-    @endif
-
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
-
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
+    <div class="auth-container">
+        <div class="auth-card auth-animate">
+            <div class="auth-header text-center">
+                <img src="{{ asset('storage/output-onlinepngtools-_1_.ico') }}" alt="Truhlik na Miru" class="auth-logo mx-auto">
+                <h1 class="auth-title">Ověření e-mailu</h1>
+                <p class="opacity-90">Zkontrolujte svou e-mailovou schránku</p>
             </div>
-        </form>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
+            <div class="auth-body">
+                <div class="mb-6 text-gray-600 text-center">
+                    Děkujeme za registraci! Než začnete, potvrďte svůj e-mail kliknutím na odkaz, který jsme vám zaslali.
+                </div>
 
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
-        </form>
+                @if (session('status') == 'verification-link-sent')
+                    <div class="mb-6 text-green-600 text-center">
+                        Nový ověřovací odkaz byl odeslán na váš e-mail.
+                    </div>
+                @endif
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <form method="POST" action="{{ route('verification.send') }}">
+                        @csrf
+                        <button type="submit" class="auth-btn btn-hover-anim w-full sm:w-auto">
+                            <i class="fas fa-envelope mr-2"></i> Odeslat znovu
+                        </button>
+                    </form>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full sm:w-auto px-4 py-3 text-gray-700 hover:text-gray-900
+                                border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Odhlásit se
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </x-guest-layout>

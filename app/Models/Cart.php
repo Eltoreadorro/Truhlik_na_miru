@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 
 class CartService
 {
@@ -54,4 +55,11 @@ class CartService
     {
         session()->forget('cart');
     }
+
+    public function variants()
+{
+    return $this->belongsToMany(ProductVariant::class)
+        ->withPivot('quantity');
+}
+
 }

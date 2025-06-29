@@ -16,7 +16,7 @@ class AdminMiddleware
         }
 
         if (!Auth::user()->hasRole('admin')) {
-            abort(403, 'Доступ запрещен');
+            abort(403, 'Přístup odmítnut. Nemáte potřebná oprávnění.');
         }
 
         return $next($request);

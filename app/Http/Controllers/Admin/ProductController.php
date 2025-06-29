@@ -5,16 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Models\Category;
+use App\Models\Color;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use App\Http\Middleware\Middleware;
-
+use App\Models\Category;
 
 class ProductController extends Controller
 {
-   public static function middleware(): array {
+    public static function middleware(): array {
         return [
             'auth',
             new Middleware('role:admin'),
@@ -23,174 +24,167 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Product::with(['category', 'variants'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
+        $products = Product::with(['category', 'media'])->paginate(10);
         return view('admin.products.index', compact('products'));
     }
 
     public function create()
     {
         $categories = Category::all();
-        return view('admin.products.create', compact('categories'));
+        $colors = Color::all();
+        return view('admin.products.create', compact('categories', 'colors'));
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'category_id' => 'required|exists:categories,id',
-            'sku_prefix' => 'required|string|max:10',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'variants' => 'required|array|min:1',
-            'variants.*.volume' => 'required|numeric|min:0.1',
-            'variants.*.height' => 'required|numeric|min:1',
-            'variants.*.width' => 'required|numeric|min:1',
-            'variants.*.color' => 'required|string|max:50',
-            'variants.*.price' => 'required|numeric|min:0.01',
-            'variants.*.stock' => 'required|integer|min:0'
-        ]);
+{
+    // Временный лог для отладки
+    Log::info('Product store request data:', $request->all());
+    Log::info('Files in request:', [
+        'main_image' => $request->hasFile('main_image'),
+        'gallery_images' => $request->hasFile('gallery_images')
+            ? count($request->file('gallery_images'))
+            : 0
+    ]);
 
-        // Создаем основной продукт
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'category_id' => 'required|exists:categories,id',
+        'description' => 'nullable|string',
+        'main_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        'gallery_images' => 'nullable|array',
+        'gallery_images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+    ]);
+
+    DB::beginTransaction();
+    try {
         $product = Product::create([
             'name' => $validated['name'],
-            'description' => $validated['description'],
             'category_id' => $validated['category_id'],
-            'sku_prefix' => $validated['sku_prefix']
+            'description' => $validated['description'] ?? null,
         ]);
 
-        // Загрузка изображения
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-            $product->update(['image' => $imagePath]);
+        Log::info('Product created:', ['id' => $product->id]);
+
+        // Главное изображение
+        if ($request->hasFile('main_image')) {
+            $mainImage = $request->file('main_image');
+            $product->addMedia($mainImage)
+                   ->usingName('main_'.$product->id)
+                   ->usingFileName('product_'.$product->id.'_main.'.$mainImage->extension())
+                   ->toMediaCollection('main', 'public');
+            Log::info('Main image uploaded');
         }
 
-        // Создаем варианты продукта
-        foreach ($validated['variants'] as $variantData) {
-            $sku = $product->sku_prefix . '-' . $variantData['volume'] . 'L-' . Str::upper(substr($variantData['color'], 0, 3));
-
-            $product->variants()->create([
-                'volume' => $variantData['volume'],
-                'height' => $variantData['height'],
-                'width' => $variantData['width'],
-                'color' => $variantData['color'],
-                'price' => $variantData['price'],
-                'stock' => $variantData['stock'],
-                'sku' => $sku
-            ]);
+        // Галерея изображений
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $key => $image) {
+                $product->addMedia($image)
+                       ->usingName('gallery_'.$product->id.'_'.$key)
+                       ->usingFileName('product_'.$product->id.'_gallery_'.$key.'.'.$image->extension())
+                       ->toMediaCollection('gallery', 'public');
+            }
+            Log::info('Gallery images uploaded: '.count($request->file('gallery_images')));
         }
+
+        DB::commit();
+        Log::info('Product created successfully');
 
         return redirect()->route('admin.products.index')
-            ->with('success', 'Товар успешно добавлен!');
+            ->with('success', 'Product was successfully created');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Product creation failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'input' => $request->all()
+        ]);
+
+        return back()->withInput()
+            ->with('error', 'Product creation failed: '.$e->getMessage());
     }
+}
 
     public function show(Product $product)
-    {
-        $product->load(['variants', 'category']);
-        return view('admin.products.show', compact('product'));
-    }
+{
+    $product->load(['variants', 'category', 'media']); // Убрали color
+    return view('admin.products.show', compact('product'));
+}
 
     public function edit(Product $product)
-    {
-        $categories = Category::all();
-        $product->load('variants');
-        return view('admin.products.edit', compact('product', 'categories'));
-    }
+{
+    $categories = Category::all();
+    $colors = Color::all(); // Оставляем для выбора цветов в форме
+    $product->load(['variants', 'media']);
+    return view('admin.products.edit', compact('product', 'categories', 'colors'));
+}
 
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
-            'sku_prefix' => 'required|string|max:10',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'variants' => 'required|array|min:1',
-            'variants.*.id' => 'sometimes|exists:product_variants,id',
-            'variants.*.volume' => 'required|numeric|min:0.1',
-            'variants.*.height' => 'required|numeric|min:1',
-            'variants.*.width' => 'required|numeric|min:1',
-            'variants.*.color' => 'required|string|max:50',
-            'variants.*.price' => 'required|numeric|min:0.01',
-            'variants.*.stock' => 'required|integer|min:0'
+            'description' => 'nullable|string',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'delete_media' => 'nullable|array'
         ]);
 
-        // Обновляем основной продукт
-        $product->update([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'category_id' => $validated['category_id'],
-            'sku_prefix' => $validated['sku_prefix']
-        ]);
+        DB::beginTransaction();
+        try {
+            $product->update($validated);
 
-        // Обновляем изображение
-        if ($request->hasFile('image')) {
-            // Удаляем старое изображение
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+            // Update main image
+            if ($request->hasFile('main_image')) {
+                $product->clearMediaCollection('main');
+                $product->addMedia($request->file('main_image'))
+                       ->usingFileName('product_'.$product->id.'_main.'.$request->file('main_image')->extension())
+                       ->toMediaCollection('main', 'public');
             }
 
-            $imagePath = $request->file('image')->store('products', 'public');
-            $product->update(['image' => $imagePath]);
-        }
-
-        // Обновляем варианты
-        $existingVariantIds = $product->variants->pluck('id')->toArray();
-        $updatedVariantIds = [];
-
-        foreach ($validated['variants'] as $variantData) {
-            $sku = $product->sku_prefix . '-' . $variantData['volume'] . 'L-' . Str::upper(substr($variantData['color'], 0, 3));
-
-            if (isset($variantData['id'])) {
-                // Обновляем существующий вариант
-                $variant = $product->variants()->find($variantData['id']);
-                $variant->update([
-                    'volume' => $variantData['volume'],
-                    'height' => $variantData['height'],
-                    'width' => $variantData['width'],
-                    'color' => $variantData['color'],
-                    'price' => $variantData['price'],
-                    'stock' => $variantData['stock'],
-                    'sku' => $sku
-                ]);
-                $updatedVariantIds[] = $variantData['id'];
-            } else {
-                // Создаем новый вариант
-                $product->variants()->create([
-                    'volume' => $variantData['volume'],
-                    'height' => $variantData['height'],
-                    'width' => $variantData['width'],
-                    'color' => $variantData['color'],
-                    'price' => $variantData['price'],
-                    'stock' => $variantData['stock'],
-                    'sku' => $sku
-                ]);
+            // Add new gallery images
+            if ($request->hasFile('gallery_images')) {
+                foreach ($request->file('gallery_images') as $key => $image) {
+                    $product->addMedia($image)
+                           ->usingFileName('product_'.$product->id.'_gallery_'.$key.'.'.$image->extension())
+                           ->toMediaCollection('gallery', 'public');
+                }
             }
-        }
 
-        // Удаляем варианты, которых нет в обновленных данных
-        $variantsToDelete = array_diff($existingVariantIds, $updatedVariantIds);
-        if (!empty($variantsToDelete)) {
-            $product->variants()->whereIn('id', $variantsToDelete)->delete();
-        }
+            // Delete marked images
+            if ($request->has('delete_media')) {
+                Media::whereIn('id', $request->delete_media)->delete();
+            }
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Товар успешно обновлен!');
+            DB::commit();
+            return redirect()->route('admin.products.index')
+                ->with('success', 'Product was successfully updated');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Error: '.$e->getMessage());
+        }
     }
 
     public function destroy(Product $product)
     {
-        // Удаляем изображение
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        DB::beginTransaction();
+        try {
+            $product->media()->delete();
+            $product->variants()->each(function($variant) {
+                $variant->media()->delete();
+                $variant->delete();
+            });
+            $product->delete();
+
+            DB::commit();
+            return redirect()->route('admin.products.index')
+                ->with('success', 'Product was successfully deleted');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error: '.$e->getMessage());
         }
-
-        // Удаляем продукт и связанные варианты (каскадное удаление)
-        $product->delete();
-
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Товар успешно удален!');
     }
 }
